@@ -7,6 +7,7 @@
     ntp_cron_handler_enabled: true
     ntp_tinker_panic: true
     ntp_timezone: Asia/Almaty
+    ntp_area: 'asia.pool.ntp.org'
     ntp_servers:
       - "ntp1.ps.kz iburst"
       - "ntp2.ps.kz iburst"
