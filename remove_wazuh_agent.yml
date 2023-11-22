@@ -1,0 +1,39 @@
+---
+- name: Remove Wazuh agent
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Stop, disable wazuh-agent service and reread configs
+      ansible.builtin.systemd:
+        name: wazuh-agent
+        state: stopped
+        enabled: false
+        daemon_reload: true
+
+    - name: Debian-family
+      block:
+        - name: Remove wazuh-agent (Debian-family)
+          ansible.builtin.apt:
+            name: wazuh-agent
+            state: absent
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: RedHat-family
+      block:
+        - name: Remove wazuh-agent (RedHat-family)
+          ansible.builtin.yum:
+            name: wazuh-agent
+            state: absent
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Remove apt source list
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/wazuh.list
+        state: absent
+
+    - name: Recursively remove directory /var/ossec
+      ansible.builtin.file:
+        path: /var/ossec
+        state: absent
