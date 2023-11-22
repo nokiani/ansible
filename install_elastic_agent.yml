@@ -1,0 +1,29 @@
+---
+- name: Install elastic-agent
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars:
+    elastictoken: "token"
+
+  tasks:
+    - name: Dir check
+      stat:
+        path: /root/elastic-agent-8.8.2-linux-x86_64
+      register: check_dir
+
+    - name: Download package
+      become_user: root
+      tags:
+      - download
+      ansible.builtin.unarchive:
+        src: https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-8.8.2-linux-x86_64.tar.gz
+        dest: /root
+        remote_src: yes
+      when: not check_dir.stat.exists
+
+    - name: Run elastic-agent
+      become_user: root
+      args:
+        chdir: /root/elastic-agent-8.8.2-linux-x86_64/
+      ansible.builtin.command: ls -la #elastic-agent install --url=https://fleet.mycar.clients.csoc.kz:443 --enrollment-token={{ elastictoken | quote }}
