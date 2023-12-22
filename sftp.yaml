@@ -1,0 +1,56 @@
+---
+- name: test-playbook | Test sftp-server role
+  hosts: gpm
+  become: yes
+  become_user: root
+  vars:
+    - sftp_users:
+      - name: robin2
+        password: "$1$salty$li5TXAa2G6oxHTDkqx3Dz/" # passpass
+        home: /var/sftp/robin2
+        shell: False
+    - sftp_start_directory: robin2
+    - sftp_directories:
+      - robin2
+    - sftp_allow_passwords: True
+    - sftp_enable_logging: True
+  roles:
+    - johanmeiring.sftp-server
+
+# Создает группы
+# sftpusers:x:1001:peter,sally
+# peter:x:1002:
+# sally:x:1003:
+
+# В sshd_config добавляет
+# # BEGIN SFTP-Server sftpusers block
+# Match Group sftpusers
+#     ChrootDirectory %h
+#     AllowTCPForwarding no
+#     PermitTunnel no
+#     X11Forwarding no
+#     ForceCommand internal-sftp
+#     PasswordAuthentication no
+# END SFTP-Server sftpusers block
+
+# Создает пользователей
+# peter:x:1001:1002::/home/peter:/sbin/nologin
+# sally:x:1002:1003::/var/tmp/sally:
+
+# Выставляет права на домашние директории
+# File: /home/peter/
+# Size: 4096    Blocks: 8    IO Block: 4096    directory
+# Device: fd00h/64768d    Inode: 262578    Links: 8
+# Access: (0750/drwxr-x---)    Uid: (    0/    root)    Gid: ( 1001/sftpusers)
+#
+# File: /var/tmp/sally/
+# Size: 4096    Blocks: 8    IO Block: 4096    directory
+# Device: fd00h/64768d    Inode: 1179862    Links: 6
+# Access: (0750/drwxr-x---)    Uid: (    0/    root)    Gid: ( 1001/sftpusers)
+
+# Создает директории
+# sudo ls /home/peter/
+# directory_only_for_peter1  directory_only_for_peter2  exports  imports  other  public
+#
+# sudo ls /var/tmp/sally/
+# exports  imports  other  public
