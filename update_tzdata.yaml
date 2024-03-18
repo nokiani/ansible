@@ -1,0 +1,19 @@
+---
+- name: Update tzdata for KZ
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Add jammy-proposed repository into sources list
+      ansible.builtin.apt_repository:
+        repo: deb http://kz.archive.ubuntu.com/ubuntu/ jammy-proposed universe main restricted multiverse
+        state: present
+    - name: Update the repository cache and update package "tzdata" to latest version
+      ansible.builtin.apt:
+        name: tzdata
+        state: latest
+        update_cache: yes
+    - name: Remove specified repository from sources list
+      ansible.builtin.apt_repository:
+        repo: deb http://kz.archive.ubuntu.com/ubuntu/ jammy-proposed universe main restricted multiverse
+        state: absent
